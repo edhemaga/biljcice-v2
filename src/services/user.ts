@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { command, multiQuery, query } from '../assets/db/config/mysql';
-import { IUser, IUserLogin } from '../models/interfaces/user';
+import { ILoginResponse, IUser, IUserLogin } from '../models/interfaces/user';
 import { calculateOffset, createSQLParameters, createToken, dehashPassword, hashPassword } from './helpers/util';
 import { IBaseRequest, ICount } from '../models/interfaces/util/base-data';
 
@@ -88,16 +88,21 @@ export const createUser = async (user: IUser): Promise<void> => {
 
 }
 
-export const login = async (user: IUserLogin): Promise<string | null> => {
-    if (!user?.email || !user?.password) return null;
+export const login = async (requestData: IUserLogin): Promise<ILoginResponse | null> => {
+    if (!requestData?.email || !requestData?.password) return null;
 
     const params = createSQLParameters({
-        email: user.email
+        email: requestData.email
     });
     const data = await query(
         `SELECT 
             id,
-            password
+            name,
+            surname,
+            email,
+            password,
+            phone,
+            country
         FROM 
             users
         WHERE
@@ -106,10 +111,20 @@ export const login = async (user: IUserLogin): Promise<string | null> => {
 
     if (!data[0]?.id) return null;
 
-    const token = dehashPassword(user.password, data[0].password) == true ?
-        addLoginData(data[0].id, user.email) : null;
+    const { password, ...user } = data[0];
+    const passwordsMatch: boolean = dehashPassword(requestData.password, password);
 
-    return token;
+    const token = passwordsMatch == true ?
+        await addLoginData(data[0].id, user.email || requestData.email) : '';
+
+    //Dodati error handling ako je token ""
+
+    const response: ILoginResponse = {
+        token,
+        ...user
+
+    }
+    return response;
 }
 
 export const hardDeleteUser = async (id: string): Promise<void> => {

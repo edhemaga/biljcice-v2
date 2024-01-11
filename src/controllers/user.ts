@@ -31,8 +31,13 @@ router.post('/', [emptyBodyCheck], async (req: Request, res: Response) => {
 })
 
 router.post('/login', [emptyBodyCheck], async (req: Request, res: Response) => {
-    const token = await login(req.body as IUserLogin);
-    res.status(200).json({ token });
+    const data = await login(req.body as IUserLogin);
+    if (!data) {
+        res.status(404).json("User could not be found!");
+    }
+    else {
+        res.status(200).json(data);
+    };
 })
 
 router.delete('/delete/:id', /*[authenticateToken],*/ async (req: Request, res: Response) => {

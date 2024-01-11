@@ -1,15 +1,12 @@
 import { IBaseClass } from "./util/base-class";
 
-import { EStatus } from "../enums/status";
-
-import { IConfiguration } from "./configuration";
 import { ISensor } from "./sensor";
 
 export interface IDevice extends IBaseClass {
     geoLocation: string;
-    activatedOn: Date;
+    //Možda ukloniti poslije, da li ima potrebe kad već imamo updatedOn
+    activatedOn?: Date;
     sensors?: ISensor[];
-    configurations?: IConfiguration[];
 }
 
 export interface IDeviceDTO {

@@ -31,11 +31,14 @@ export const calculateOffset = (requestData: IBaseRequest): number => {
 
 export const createToken = (id: string, email: string): string => {
     const token = jwt.sign(
-        { id, name: email },
+        {
+            id,
+            email
+        },
         process.env.SECRET_KEY || '',
         {
             expiresIn: '7 days',
-        }
+        },
     );
     return token;
 }

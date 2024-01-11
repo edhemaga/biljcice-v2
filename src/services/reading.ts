@@ -23,24 +23,43 @@ export const getReadingsByTimeInterval = async (deviceId: string): Promise<void>
 
 }
 
-export const getReadingsLastDay = async (deviceId: string): Promise<any[]> => {
+export const getReadings24Hours = async (deviceId: string): Promise<Partial<IReading>[]> => {
     const params = createSQLParameters({ deviceId });
     const data = await query(
         `SELECT
             HOUR(createdOn) AS time,
             sensorId AS sensor,
-            SUM(value) AS value,
-            high, low
+            AVG(value) AS value
         FROM 
             readings
         WHERE
             createdOn > DATE_SUB(NOW(), INTERVAL 24 HOUR)
         GROUP BY 
-            minute(createdOn),
-            sensorId,
-            high,
-            low;`,
-        params) as any[];
+            hour(createdOn),
+            sensorId
+        ORDER BY
+            createdOn ASC;`,
+        params) as Partial<IReading>[];
+    return data;
+}
+
+export const getReadingsLast30Days = async (deviceId: string): Promise<Partial<IReading>[]> => {
+    const params = createSQLParameters({ deviceId });
+    const data = await query(
+        `SELECT
+            CONCAT(DAY(createdOn), "/", MONTH(createdOn)) AS time,
+            sensorId AS sensor,
+            AVG(value) AS value
+        FROM 
+            readings
+        WHERE
+        createdOn > DATE_SUB(NOW(), INTERVAL 720 HOUR)
+        GROUP BY 
+            day(createdOn),
+            sensorId
+        ORDER BY
+            createdOn ASC;`,
+        params) as Partial<IReading>[];
     return data;
 }
 

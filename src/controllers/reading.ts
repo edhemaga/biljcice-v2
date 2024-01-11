@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import { authenticateToken, emptyBodyCheck } from "./middleware/middleware";
-import { getReadings, getReadingsLastDay, postReading, syncReadings } from '../services/reading';
+import { getReadings, getReadingsLast30Days, getReadings24Hours, postReading, syncReadings } from '../services/reading';
 
 const router = express.Router();
 
@@ -18,7 +18,16 @@ router.get('/:deviceId/day', [authenticateToken], async (req: Request, res: Resp
         res.status(400);
         return;
     }
-    const data = await getReadingsLastDay(req.params.deviceId);
+    const data = await getReadings24Hours(req.params.deviceId);
+    res.status(200).send(data);
+})
+
+router.get('/:deviceId/month', [authenticateToken], async (req: Request, res: Response) => {
+    if (!req.params.deviceId) {
+        res.status(400);
+        return;
+    }
+    const data = await getReadingsLast30Days(req.params.deviceId);
     res.status(200).send(data);
 })
 

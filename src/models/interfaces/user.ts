@@ -17,3 +17,7 @@ export interface IUserLogin {
     email: string;
     password: string;
 }
+
+export interface ILoginResponse extends Partial<IUser> {
+    token: string | null;
+}
