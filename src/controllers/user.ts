@@ -1,10 +1,10 @@
 import express, { Request, Response } from 'express';
 
-import { getAllUsers, createUser, login } from '../services/user';
+import { getAllUsers, createUser, login, getUser, getUserWithDevices } from '../services/user';
 import { IUser, IUserLogin } from '../models/interfaces/user';
 import { IBaseRequest } from '../models/interfaces/util/base-data';
 
-import { authenticateToken, emptyBodyCheck, paginationCheck } from './middleware/middleware';
+import { authenticateToken, checkIdParam, emptyBodyCheck, paginationCheck } from './middleware/middleware';
 
 const router = express.Router();
 
@@ -18,6 +18,17 @@ router.get('/', [authenticateToken, paginationCheck], async (req: Request, res: 
     const users = await getAllUsers(requestData);
 
     res.json(users);
+})
+
+router.get('/:id', [authenticateToken, checkIdParam], async (req: Request, res: Response) => {
+    try {
+        console.log(req.params.id);
+        //Možda poslije napraviti posebnu metodu za ovo ako bude potrebe ili preimenovati ovu rutu sa više detalja
+        const response = await getUserWithDevices(req.params.id);
+        res.status(200).json(response);
+    } catch (error) {
+        res.status(404).json("User could not be found!")
+    }
 })
 
 router.post('/', [emptyBodyCheck], async (req: Request, res: Response) => {

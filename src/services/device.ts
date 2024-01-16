@@ -1,5 +1,5 @@
 import { command, query } from "../assets/db/config/mysql";
-import { IDevice, IDeviceDTO } from "../models/interfaces/device"
+import { IDevice } from "../models/interfaces/device"
 import { IBaseRequest, IBaseResponse } from "../models/interfaces/util/base-data"
 import { calculateOffset, createSQLParameters } from "./helpers/util";
 
@@ -12,8 +12,7 @@ export const getDevices =
             status,
             createdOn,
             updatedOn,
-            geoLocation,
-            activatedOn
+            geoLocation
         FROM 
             devices
         WHERE
@@ -24,7 +23,7 @@ export const getDevices =
             status 
         DESC
         LIMIT
-            ${requestData.pageSize} 
+            ${Number(requestData.pageSize)}
         OFFSET 
             ${calculateOffset(requestData)};`
         ) as IDevice[];
@@ -38,6 +37,27 @@ export const getDevices =
         return response;
 
     }
+
+export const getDevicesForUser = async (userId: string): Promise<Partial<IDevice>[]> => {
+    const data = await query(
+        `SELECT
+        id,
+        status,
+        createdOn,
+        updatedOn,
+        geoLocation
+    FROM 
+        devices
+    WHERE
+        isDeleted = FALSE
+    AND
+        userId = '${userId}'
+    ORDER BY 
+        status;`
+    ) as IDevice[]
+    return data;
+}
+
 
 export const getDevice = async (id: string): Promise<IDevice[]> => {
     const data = await query(
@@ -53,8 +73,8 @@ export const getDevice = async (id: string): Promise<IDevice[]> => {
         WHERE
             isDeleted = FALSE
         AND
-            id = '${id}';`);
-    return data as IDevice[];
+            id = '${id}';`) as IDevice[];
+    return data;
 }
 
 export const addDevice = async (deviceToAdd: Partial<IDevice>): Promise<void> => {

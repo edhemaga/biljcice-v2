@@ -1,7 +1,7 @@
 export interface IBaseRequest {
     id?: string;
-    pageIndex: number;
-    pageSize: number;
+    pageIndex: number | 0;
+    pageSize: number | 10;
     filter?: string;
 }
 

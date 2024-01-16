@@ -3,6 +3,7 @@ import { command, multiQuery, query } from '../assets/db/config/mysql';
 import { ILoginResponse, IUser, IUserLogin } from '../models/interfaces/user';
 import { calculateOffset, createSQLParameters, createToken, dehashPassword, hashPassword } from './helpers/util';
 import { IBaseRequest, ICount } from '../models/interfaces/util/base-data';
+import { IDevice } from '../models/interfaces/device';
 
 //Pagination will be included in order not to overstrech SELECT 
 export const getAllUsers = async (requestData: IBaseRequest): Promise<Partial<IUser>[]> => {
@@ -34,7 +35,6 @@ export const getAllUsers = async (requestData: IBaseRequest): Promise<Partial<IU
 }
 
 export const getUser = async (id: string): Promise<Partial<IUser> | null> => {
-
     if (!id) return null;
 
     const data = await query(
@@ -47,6 +47,37 @@ export const getUser = async (id: string): Promise<Partial<IUser> | null> => {
 
     if (!data) return null;
     return data[0] as IUser;
+}
+
+export const getUserWithDevices = async (id: string): Promise<Partial<IUser> | null> => {
+    if (!id) return null;
+
+    const users = await query(
+        `SELECT * 
+        FROM 
+            users 
+        WHERE 
+            id = '${id}';`) as IUser[];
+
+    const devices = await query(
+        `SELECT *
+        FROM
+            devices
+        WHERE userId = '${id}'`) as IDevice[];
+
+    if (users.length === 0) return null;
+
+    //Možda reducirati ovaj dio, ima li potrebe za svim ovim informacijama?
+    const response: Partial<IUser> = {
+        name: users[0].name,
+        surname: users[0].surname,
+        email: users[0].email,
+        phone: users[0].phone,
+        country: users[0].country,
+        devices: [...devices]
+    }
+
+    return response;
 }
 
 //Ne vraća dobar error, pogledati ponovo
@@ -88,8 +119,8 @@ export const createUser = async (user: IUser): Promise<void> => {
 
 }
 
-export const login = async (requestData: IUserLogin): Promise<ILoginResponse | null> => {
-    if (!requestData?.email || !requestData?.password) return null;
+export const login = async (requestData: IUserLogin): Promise<string> => {
+    if (!requestData?.email || !requestData?.password) return "";
 
     const params = createSQLParameters({
         email: requestData.email
@@ -97,34 +128,24 @@ export const login = async (requestData: IUserLogin): Promise<ILoginResponse | n
     const data = await query(
         `SELECT 
             id,
-            name,
-            surname,
-            email,
             password,
-            phone,
-            country
+            email
         FROM 
             users
         WHERE
             email = ?;
         `, params) as Partial<IUser>[];
 
-    if (!data[0]?.id) return null;
+    if (!data[0]?.id) return "";
 
     const { password, ...user } = data[0];
     const passwordsMatch: boolean = dehashPassword(requestData.password, password);
 
     const token = passwordsMatch == true ?
-        await addLoginData(data[0].id, user.email || requestData.email) : '';
+        await addLoginData(data[0].id, user.email || requestData.email) : "";
 
     //Dodati error handling ako je token ""
-
-    const response: ILoginResponse = {
-        token,
-        ...user
-
-    }
-    return response;
+    return token;
 }
 
 export const hardDeleteUser = async (id: string): Promise<void> => {

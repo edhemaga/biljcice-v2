@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 
 import { IBaseRequest, IBaseResponse } from '../models/interfaces/util/base-data';
-import { activateDevice, addDevice, deactivateDevice, getDevice, getDevices } from '../services/device';
+import { activateDevice, addDevice, deactivateDevice, getDevice, getDevices, getDevicesForUser } from '../services/device';
 import { IDevice, IDeviceDTO } from '../models/interfaces/device';
 import { authenticateToken, checkIdParam, emptyBodyCheck } from './middleware/middleware';
 
@@ -18,6 +18,11 @@ router.get('/', async (req: Request, res: Response) => {
     }
     const response = await getDevices(requestData);
     res.status(200).json(response.data);
+});
+
+router.get('/user/:id', async (req: Request, res: Response) => {
+    const response = await getDevicesForUser(req.params.id);
+    res.status(200).json(response);
 });
 
 router.get('/:id', [authenticateToken, checkIdParam], async (req: Request, res: Response) => {
