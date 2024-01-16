@@ -6,7 +6,14 @@ export const getReadings = async (deviceId: string): Promise<IReading[]> => {
     const params = createSQLParameters({ deviceId });
     const data = await query(
         `SELECT 
-            * 
+            readings.id,
+            readings.createdOn,
+            readings.value,
+            readings.high,
+            readings.low,
+            sensors.name,
+            sensors.serialNumber
+             
         FROM
             readings
         INNER JOIN

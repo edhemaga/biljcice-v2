@@ -53,17 +53,30 @@ export const getUserWithDevices = async (id: string): Promise<Partial<IUser> | n
     if (!id) return null;
 
     const users = await query(
-        `SELECT * 
+        `SELECT 
+            id,
+            name,
+            surname,
+            email,
+            phone,
+            country
         FROM 
             users 
         WHERE 
             id = '${id}';`) as IUser[];
 
     const devices = await query(
-        `SELECT *
+        `SELECT
+            id,
+            status,
+            createdOn,
+            geoLocation
         FROM
             devices
-        WHERE userId = '${id}'`) as IDevice[];
+        WHERE 
+            userId = '${id}'
+        AND
+            isDeleted = FALSE`) as IDevice[];
 
     if (users.length === 0) return null;
 

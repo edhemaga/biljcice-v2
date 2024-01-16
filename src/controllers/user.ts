@@ -22,7 +22,6 @@ router.get('/', [authenticateToken, paginationCheck], async (req: Request, res: 
 
 router.get('/:id', [authenticateToken, checkIdParam], async (req: Request, res: Response) => {
     try {
-        console.log(req.params.id);
         //Možda poslije napraviti posebnu metodu za ovo ako bude potrebe ili preimenovati ovu rutu sa više detalja
         const response = await getUserWithDevices(req.params.id);
         res.status(200).json(response);
