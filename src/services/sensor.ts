@@ -31,7 +31,6 @@ LIMIT
 OFFSET 
     ${calculateOffset(requestData)};`
 
-    console.log(queryy);
     const data = await query(
         `SELECT
             id,
@@ -80,7 +79,9 @@ export const getSensor = async (id: string): Promise<ISensor[]> => {
             manufacturer,
             price,
             type,
-            serialNumber
+            serialNumber,
+            high,
+            low
         FROM 
             sensors
         WHERE
@@ -121,6 +122,22 @@ export const addSensor = async (sensorToAdd: ISensor): Promise<void> => {
         params
     );
 };
+
+export const updateSensor = async (sensor: Partial<ISensor>, sensorId: string): Promise<void> => {
+    const params = createSQLParameters(sensor);
+    await command(
+        `UPDATE
+            sensors
+        SET
+            name = ?,
+            manufacturer = ?,
+            high = ?,
+            low = ?
+        WHERE
+            id = '${sensorId}';`,
+        params
+    );
+}
 
 export const activateSensor = async (sensorId: string): Promise<void> => {
     const params = createSQLParameters(sensorId);

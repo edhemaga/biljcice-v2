@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import { IBaseRequest } from '../models/interfaces/util/base-data';
-import { getSensors, getSensor, addSensor, activateSensor, deactivateSensor, deleteSensor } from '../services/sensor';
+import { getSensors, getSensor, addSensor, activateSensor, deactivateSensor, deleteSensor, updateSensor } from '../services/sensor';
 import { authenticateToken, checkIdParam, emptyBodyCheck } from './middleware/middleware';
 import { ISensor } from '../models/interfaces/sensor';
 
@@ -33,6 +33,20 @@ router.post('/', [authenticateToken, emptyBodyCheck], async (req: Request, res: 
     await addSensor(req.body as ISensor);
     res.status(200).json({ message: "Sensor added successfully!" });
 });
+
+router.put('/:id/config', [authenticateToken, checkIdParam], async (req: Request, res: Response) => {
+    const { high, low } = req.body;
+    if (high < 0 || low < 0 || high < low) res.status(404).json({ message: "Boundary values cannot be negative!" });
+    const sensor: Partial<ISensor> = {
+        name: req.body.name,
+        manufacturer: req.body.manufacturer,
+        high: Number(req.body.high),
+        low: Number(req.body.low)
+    }
+    await updateSensor(sensor, req.params.id);
+    res.status(200).json({ message: "Sensor successfully activated!" });
+});
+
 
 router.put('/:id/activate', [authenticateToken, checkIdParam], async (req: Request, res: Response) => {
     await activateSensor(req.params.id);
