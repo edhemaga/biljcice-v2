@@ -212,9 +212,9 @@ const addLoginData = async (userId: string, email: string): Promise<string> => {
 
     const queries: string[] = [
         `DELETE FROM
-        activeLogins
+            activeLogins
         WHERE
-        id = '${userId}'`,
+            id = '${userId}'`,
         `INSERT INTO 
             activeLogins (
                 id, 

@@ -7,7 +7,7 @@ import { ISensor } from '../models/interfaces/sensor';
 const router = express.Router();
 
 router.get('/', [authenticateToken], async (req: Request, res: Response) => {
-    if (!req.query?.page || !req.query?.size || !req.query?.user) {
+    if (!req.query?.page || !req.query?.size || !req.query.device) {
         res.status(400).json({ message: "Bad request!" });
         return;
     }
@@ -15,7 +15,7 @@ router.get('/', [authenticateToken], async (req: Request, res: Response) => {
     const requestData: IBaseRequest = {
         pageIndex: Number(req.query.page),
         pageSize: Number(req.query.size),
-        filter: String(req.query.user),
+        filter: String(req.query.device),
     };
 
     const response = await getSensors(requestData);

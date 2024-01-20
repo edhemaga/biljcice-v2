@@ -1,5 +1,6 @@
 import mysql, { Connection, ConnectionOptions, ErrorPacketParams } from 'mysql2/promise';
 
+//TODO prebaciti u env 
 const access: ConnectionOptions = {
     user: "root",
     password: "admin",

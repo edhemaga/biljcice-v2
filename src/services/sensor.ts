@@ -5,6 +5,33 @@ import { calculateOffset, createSQLParameters } from "./helpers/util";
 
 export const getSensors = async (requestData: IBaseRequest): Promise<IBaseResponse<ISensor[]>> => {
     const deviceId = requestData.filter;
+    const queryy = `SELECT
+    id,
+    status,
+    createdOn,
+    updatedOn,
+    name,
+    manufacturer,
+    price,
+    high,
+    low,
+    type,
+    serialNumber
+FROM 
+    sensors
+WHERE
+    isDeleted = FALSE
+AND
+    deviceId = '${deviceId}'
+ORDER BY 
+    createdOn 
+DESC
+LIMIT
+    ${requestData.pageSize} 
+OFFSET 
+    ${calculateOffset(requestData)};`
+
+    console.log(queryy);
     const data = await query(
         `SELECT
             id,
@@ -14,6 +41,8 @@ export const getSensors = async (requestData: IBaseRequest): Promise<IBaseRespon
             name,
             manufacturer,
             price,
+            high,
+            low,
             type,
             serialNumber
         FROM 
@@ -21,7 +50,7 @@ export const getSensors = async (requestData: IBaseRequest): Promise<IBaseRespon
         WHERE
             isDeleted = FALSE
         AND
-        deviceId = '${deviceId}'
+            deviceId = '${deviceId}'
         ORDER BY 
             createdOn 
         DESC

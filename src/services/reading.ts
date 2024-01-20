@@ -34,18 +34,22 @@ export const getReadings24Hours = async (deviceId: string): Promise<Partial<IRea
     const params = createSQLParameters({ deviceId });
     const data = await query(
         `SELECT
-            HOUR(createdOn) AS time,
-            sensorId AS sensor,
-            AVG(value) AS value
+            HOUR(readings.createdOn) AS time,
+            sensors.name AS sensor,
+            AVG(readings.value) AS value
         FROM 
             readings
+        INNER JOIN
+            sensors
+        ON
+            readings.sensorId = sensors.id
         WHERE
-            createdOn > DATE_SUB(NOW(), INTERVAL 24 HOUR)
+            readings.createdOn > DATE_SUB(NOW(), INTERVAL 24 HOUR)
         GROUP BY 
-            hour(createdOn),
-            sensorId
+            hour(readings.createdOn),
+            readings.sensorId
         ORDER BY
-            createdOn ASC;`,
+            readings.createdOn ASC;`,
         params) as Partial<IReading>[];
     return data;
 }
@@ -54,18 +58,22 @@ export const getReadingsLast30Days = async (deviceId: string): Promise<Partial<I
     const params = createSQLParameters({ deviceId });
     const data = await query(
         `SELECT
-            CONCAT(DAY(createdOn), "/", MONTH(createdOn)) AS time,
-            sensorId AS sensor,
-            AVG(value) AS value
+            CONCAT(DAY(readings.createdOn), "/", MONTH(readings.createdOn)) AS time,
+            sensors.name AS sensor,
+            AVG(readings.value) AS value
         FROM 
             readings
+        INNER JOIN
+            sensors
+        ON
+            readings.sensorId = sensors.id
         WHERE
-        createdOn > DATE_SUB(NOW(), INTERVAL 720 HOUR)
-        GROUP BY 
-            day(createdOn),
-            sensorId
+        readings.createdOn > DATE_SUB(NOW(), INTERVAL 720 HOUR)
+        GROUP BY
+            day(readings.createdOn),
+            readings.sensorId
         ORDER BY
-            createdOn ASC;`,
+            readings.createdOn ASC;`,
         params) as Partial<IReading>[];
     return data;
 }
