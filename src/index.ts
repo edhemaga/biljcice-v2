@@ -11,6 +11,8 @@ import userRoutes from "./controllers/user"
 import deviceRoutes from "./controllers/device";
 import sensorRoutes from "./controllers/sensor";
 import readingRoutes from "./controllers/reading";
+import alertRoutes from "./controllers/alert";
+
 import { options } from './assets/cors';
 
 
@@ -33,6 +35,7 @@ app.use("/user", userRoutes);
 app.use("/device", deviceRoutes);
 app.use("/sensor", sensorRoutes);
 app.use("/reading", readingRoutes);
+app.use("/alert", alertRoutes);
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);

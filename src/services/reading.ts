@@ -12,8 +12,7 @@ export const getReadings = async (deviceId: string): Promise<IReading[]> => {
             readings.high,
             readings.low,
             sensors.name,
-            sensors.serialNumber
-             
+            sensors.serialNumber 
         FROM
             readings
         INNER JOIN
@@ -79,30 +78,31 @@ export const getReadingsLast30Days = async (deviceId: string): Promise<Partial<I
 }
 
 export const postReading = async (data: Partial<IReading>): Promise<void> => {
+    if (data && data.value) {
+        data.value += Math.random() || 10;
+        data.value = Math.round(data.value * 10000) / 10000;
+    }
+    const params = createSQLParameters(data);
+    await command(
+        `INSERT INTO
+        readings
+            (
+                value,
+                sensorId,
+                high,
+                low
+            )
+    VALUES
+            (
+                ?,
+                ?,
+                ?,
+                ?
+            );`,
+        params);
     try {
         //Demo, izbrisati poslije
-        if (data && data.value) {
-            data.value += Math.random() || 10;
-            data.value = Math.round(data.value * 10000) / 10000;
-        }
-        const params = createSQLParameters(data);
-        await command(
-            `INSERT INTO
-            readings
-                (
-                    value,
-                    sensorId,
-                    high,
-                    low
-                )
-        VALUES
-                (
-                    ?,
-                    ?,
-                    ?,
-                    ?
-                );`,
-            params);
+
     } catch (error) {
         throw new Error(JSON.stringify(error));
     }
@@ -110,27 +110,28 @@ export const postReading = async (data: Partial<IReading>): Promise<void> => {
 
 export const syncReadings = async (data: Partial<IReading>[]): Promise<void> => {
     try {
-        const query = `INSERT INTO
-        readings
-            (
-                id,
-                isDeleted,
-                createdOn,
-                value,
-                sensorId,
-                high,
-                low
-            )
-    VALUES
-            (   
-                ?,
-                ?,
-                DATE(?),
-                ?,
-                ?,
-                ?,
-                ?
-            );`;
+        const query =
+            `INSERT INTO
+            readings
+                (
+                    id,
+                    isDeleted,
+                    createdOn,
+                    value,
+                    sensorId,
+                    high,
+                    low
+                )
+        VALUES
+                (   
+                    ?,
+                    ?,
+                    DATE(?),
+                    ?,
+                    ?,
+                    ?,
+                    ?
+                );`;
 
         const { queries, params } = prepareBulkInsertQuery(query, data || {});
 
@@ -138,5 +139,4 @@ export const syncReadings = async (data: Partial<IReading>[]): Promise<void> => 
     } catch (error) {
         throw new Error(JSON.stringify(error));
     }
-
 }

@@ -104,8 +104,8 @@ BEGIN
             SET alertSeverity = 1; -- Low severity
         END IF;
 
-        INSERT INTO alerts (id, severity, notified, readingId, configurationId)
-        VALUES (UUID(), alertSeverity, false, NEW.id, NULL);
+        INSERT INTO alerts (id, severity, notified, readingId)
+        VALUES (UUID(), alertSeverity, false, NEW.id);
     END IF;
 END;
 //
@@ -141,8 +141,8 @@ BEGIN
             SET alertSeverity = 1; -- Low severity
         END IF;
 
-        INSERT INTO alerts (id, severity, notified, readingId, configurationId)
-        VALUES (UUID(), alertSeverity, false, NEW.id, NULL);
+        INSERT INTO alerts (id, severity, notified, readingId)
+        VALUES (UUID(), alertSeverity, false, NEW.id);
     END IF;
 END;
 //
