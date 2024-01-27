@@ -1,8 +1,9 @@
-import { command, multiQuery, query } from "../assets/db/config/mysql";
+import { query } from "../assets/db/config/mysql";
+
 import { IAlert, IAlertExtended } from "../models/interfaces/alert";
 import { IBaseRequest, ICount } from "../models/interfaces/util/base-data";
-import { calculateOffset, createSQLParameters, prepareBulkInsertQuery } from "./helpers/util";
 
+import { calculateOffset } from "./helpers/util";
 
 export const getAlerts = async (requestData: IBaseRequest) => {
 
@@ -117,6 +118,6 @@ export const getAlertBySeverity = async (deviceId: string) => {
             alerts.severity        
         ORDER BY
             alerts.severity DESC;`
-    );
+    ) as IAlert[];
     return data;
 }
