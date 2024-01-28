@@ -1,9 +1,15 @@
 import { command, multiQuery, query } from "../assets/db/config/mysql";
-import { IReading } from "../models/interfaces/reading";
-import { createSQLParameters, prepareBulkInsertQuery } from "./helpers/util";
 
-export const getReadings = async (deviceId: string): Promise<IReading[]> => {
-    const params = createSQLParameters({ deviceId });
+import { IReading } from "../models/interfaces/reading";
+import { IBaseRequest, ICount } from "../models/interfaces/util/base-data";
+
+import { calculateOffset, createSQLParameters, prepareBulkInsertQuery } from "./helpers/util";
+
+//TODO promijeniti povratni tip u IReadingExtended[]
+export const getReadings = async (requestData: IBaseRequest): Promise<any> => {
+
+    const deviceId = requestData.filter;
+
     const data = await query(
         `SELECT 
             readings.id,
@@ -20,9 +26,29 @@ export const getReadings = async (deviceId: string): Promise<IReading[]> => {
         ON 
             readings.sensorId = sensors.id
         WHERE 
-            sensors.deviceId = ?;`,
-        params) as IReading[];
-    return data;
+            sensors.deviceId = '${deviceId}'
+        ORDER BY 
+            readings.createdOn DESC
+        LIMIT
+            ${requestData.pageSize} 
+        OFFSET 
+            ${calculateOffset(requestData)};`) as IReading[];
+
+    const dataCount = await query(
+        `SELECT 
+            COUNT(readings.id) AS count
+        FROM
+            readings
+        INNER JOIN
+            sensors
+        ON 
+            readings.sensorId = sensors.id
+        WHERE 
+            sensors.deviceId = '${deviceId}'`) as ICount[];
+            
+    const count: number = dataCount[0].count ?? 0;
+
+    return { data, count };
 }
 
 export const getReadingsByTimeInterval = async (deviceId: string): Promise<void> => {

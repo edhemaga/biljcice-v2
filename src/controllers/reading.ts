@@ -1,15 +1,24 @@
 import express, { Request, Response } from 'express';
+
 import { authenticateToken, emptyBodyCheck } from "./middleware/middleware";
+
 import { getReadings, getReadingsLast30Days, getReadings24Hours, postReading, syncReadings } from '../services/reading';
+
+import { IBaseRequest } from '../models/interfaces/util/base-data';
 
 const router = express.Router();
 
-router.get('/:deviceId', [authenticateToken], async (req: Request, res: Response) => {
-    if (!req.params.deviceId) {
+router.get('/', [authenticateToken], async (req: Request, res: Response) => {
+    if (!req.query.device || !req.query.page || !req.query.size) {
         res.status(400);
         return;
     }
-    const data = await getReadings(req.params.deviceId as string);
+    const requestData: IBaseRequest = {
+        pageIndex: Number(req.query.page),
+        pageSize: Number(req.query.size),
+        filter: String(req.query.device),
+    };
+    const data = await getReadings(requestData);
     res.status(200).send(data);
 })
 

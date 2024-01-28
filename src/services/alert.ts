@@ -5,7 +5,7 @@ import { IBaseRequest, ICount } from "../models/interfaces/util/base-data";
 
 import { calculateOffset } from "./helpers/util";
 
-export const getAlerts = async (requestData: IBaseRequest) => {
+export const getAlerts = async (requestData: IBaseRequest): Promise<{ data: IAlertExtended[], count: number }> => {
 
     const deviceId = requestData.filter;
 
@@ -55,6 +55,7 @@ export const getAlerts = async (requestData: IBaseRequest) => {
             sensors.deviceId = '${deviceId}'`) as ICount[];
 
     const count: number = dataCount[0].count ?? 0;
+    
     return { data, count };
 
     // throw new Error(JSON.stringify(error));

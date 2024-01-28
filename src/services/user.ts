@@ -76,7 +76,9 @@ export const getUserWithDevices = async (id: string): Promise<Partial<IUser> | n
         WHERE 
             userId = '${id}'
         AND
-            isDeleted = FALSE`) as IDevice[];
+            isDeleted = FALSE
+        ORDER BY
+            createdOn ASC;`) as IDevice[];
 
     if (users.length === 0) return null;
 
