@@ -78,12 +78,11 @@ CREATE TABLE IF NOT EXISTS alerts (
     id VARCHAR(255) PRIMARY KEY DEFAULT (UUID()),
     severity INT CHECK(severity IN (1, 2, 3)),
     notified BOOLEAN DEFAULT false,
-    readingId VARCHAR(255),
+    readingId VARCHAR(255)
 );
 
-SET PERSIST sql_mode = ( SELECT REPLACE(@ @sql_mode, 'ONLY_FULL_GROUP_BY', ''));
+SET sql_mode = REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', '');
 
---STORED PROCEDURE - TRIGGERS -------------
 DELIMITER //
 CREATE TRIGGER after_reading_insert_high
 AFTER INSERT
@@ -147,4 +146,3 @@ BEGIN
 END;
 //
 DELIMITER ;
-------------------------------------------------------------
