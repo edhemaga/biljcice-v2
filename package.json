@@ -8,6 +8,7 @@
     "build": "tsc",
     "serve": "node dist/index.js"
   },
+  "type": "module",
   "author": "edhemaga, vjerisimus i dambar",
   "license": "ISC",
   "devDependencies": {
