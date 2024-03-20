@@ -41,6 +41,6 @@ app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
 
-app.get('status', (req: Request, res: Response) => {
+app.get('/status', (req: Request, res: Response) => {
     res.status(200).send('<h1>Service avaliable</h1>');
 })
